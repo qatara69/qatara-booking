@@ -36,6 +36,14 @@ class UsersController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'contact_number' => ['required', 'numeric', 'unique:users,contact_number'],
+            'address' => 'required',
+            'email' => ['required', 'string', 'email', 'unique:users,email'],
+            'password' => ['required', 'min:8'],
+        ]);
         $user = User::create([
             'first_name' => $request->get('first_name'),
             'last_name' => $request->get('last_name'),
@@ -63,20 +71,32 @@ class UsersController extends Controller
 
     public function update(Request $request, User $user)
     {
+        $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'contact_number' => ['required', 'numeric', 'unique:users,contact_number,'.$user->id],
+            'address' => 'required',
+            'email' => ['required', 'string', 'email', 'unique:users,email,'.$user->id],
+        ]);
         $user->update([
             'first_name' => $request->get('first_name'),
             'last_name' => $request->get('last_name'),
             'contact_number' => $request->get('contact_number'),
             'address' => $request->get('address'),
             'email' => $request->get('email'),
-            'email_verified_at' => Carbon::now(),
-            'password' => $request->get('password'),
         ]);
+
+        if(!is_null($request->get('password'))){
+            $request->validate([
+                'password' => ['required', 'min:8']
+            ]);
+            $user->update([
+                'password' => $request->get('password')
+            ]);
+        }
         $user->roles()->sync($request->input('roles', []));
 
         return redirect()->route('admin.users.index');
-
-        // return redirect()->route('admin.users.index');
     }
 
     public function show(User $user)

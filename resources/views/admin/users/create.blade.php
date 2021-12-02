@@ -32,7 +32,7 @@
             <div class="form-group row">
                 <div class="col-md-6">
                     <label class="required" for="contact_number">Contact #</label>
-                    <input class="form-control {{ $errors->has('contact_number') ? 'is-invalid' : '' }}" type="text" name="contact_number" id="contact_number" value="{{ old('contact_number', '') }}" required>
+                    <input class="form-control {{ $errors->has('contact_number') ? 'is-invalid' : '' }}" type="number" name="contact_number" id="contact_number" value="{{ old('contact_number', '') }}" required>
                     @if($errors->has('contact_number'))
                         <div class="invalid-feedback">
                             {{ $errors->first('contact_number') }}
