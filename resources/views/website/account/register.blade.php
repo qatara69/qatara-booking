@@ -23,9 +23,13 @@
                                 <input id="last_name" type="text" class="form-control" name="last_name" autocomplete="last_name" >
                                 <span class="text-danger" id="last_name-error"></span>
                             </div>
+                            {{-- ^(09|\+639)\d{9}$ --}}
                             <div class="form-group">
                                 <label for="contact_number">Contact #</label>
-                                <input id="contact_number" type="text" class="form-control" name="contact_number" autocomplete="contact_number" >
+                                <input id="contact_number" type="tel" pattern="^(09|\+639)\d{9}$" class="form-control" name="contact_number" autocomplete="contact_number" >
+                                <span class="form-info">
+                                    Format   (09xxxxxxxxx or +639xxxxxxxxx)
+                                </span>
                                 <span class="text-danger" id="contact_number-error"></span>
                             </div>
                             <div class="form-group">

@@ -89,6 +89,24 @@
                 @yield('content')
 
             </div>
+            <div class="modal fade" id="modalAjaxError" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="DoctorsNotes" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                          <h4 class="modal-title text-danger"><i class="fad fa-exclamation-triangle"></i> Error</h4>
+                          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            {{-- <div id="ajaxOptions"></div> --}}
+                            <legend id="thrownError"></legend>
+                            <div id="xhr"></div>
+                        </div>
+                        <div class="modal-footer text-right">
+                            <button class="btn btn-default" type="button" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
         </main>
@@ -154,112 +172,194 @@
     </script>
 
     <script>
-    $(function() {
-		let copyButtonTrans = '{{ trans('global.datatables.copy') }}'
-		let csvButtonTrans = '{{ trans('global.datatables.csv') }}'
-		let excelButtonTrans = '{{ trans('global.datatables.excel') }}'
-		let pdfButtonTrans = '{{ trans('global.datatables.pdf') }}'
-		let printButtonTrans = '{{ trans('global.datatables.print') }}'
-		let colvisButtonTrans = '{{ trans('global.datatables.colvis') }}'
+        $(function() {
+            let copyButtonTrans = '{{ trans('global.datatables.copy') }}'
+            let csvButtonTrans = '{{ trans('global.datatables.csv') }}'
+            let excelButtonTrans = '{{ trans('global.datatables.excel') }}'
+            let pdfButtonTrans = '{{ trans('global.datatables.pdf') }}'
+            let printButtonTrans = '{{ trans('global.datatables.print') }}'
+            let colvisButtonTrans = '{{ trans('global.datatables.colvis') }}'
 
-		let languages = {
-			'en': 'https://cdn.datatables.net/plug-ins/1.10.19/i18n/English.json'
-		};
+            let languages = {
+                'en': 'https://cdn.datatables.net/plug-ins/1.10.19/i18n/English.json'
+            };
 
-		$.extend(true, $.fn.dataTable.Buttons.defaults.dom.button, { className: 'btn' })
-		$.extend(true, $.fn.dataTable.defaults, {
-			language: {
-			url: languages['{{ app()->getLocale() }}']
-			},
-			columnDefs: [{
-				orderable: false,
-				className: 'select-checkbox',
-				targets: 0
-			}, {
-				orderable: false,
-				searchable: false,
-				targets: -1
-			}],
-			select: {
-			style:    'multi+shift',
-			selector: 'td:first-child'
-			},
-			order: [],
-			scrollX: true,
-			pageLength: 100,
-			dom: 'lBfrtip<"actions">',
-			buttons: [
-			{
-				extend: 'copy',
-				className: 'btn-default',
-				text: copyButtonTrans,
-				exportOptions: {
-				columns: ':visible'
-				}
-			},
-			{
-				extend: 'csv',
-				className: 'btn-default',
-				text: csvButtonTrans,
-				exportOptions: {
-				columns: ':visible'
-				}
-			},
-			{
-				extend: 'excel',
-				className: 'btn-default',
-				text: excelButtonTrans,
-				exportOptions: {
-				columns: ':visible'
-				}
-			},
-			{
-				extend: 'pdf',
-				className: 'btn-default',
-				text: pdfButtonTrans,
-				exportOptions: {
-				columns: ':visible'
-				}
-			},
-			{
-				extend: 'print',
-				className: 'btn-default',
-				text: printButtonTrans,
-				exportOptions: {
-				columns: ':visible'
-				}
-			},
-			{
-				extend: 'colvis',
-				className: 'btn-default',
-				text: colvisButtonTrans,
-				exportOptions: {
-				columns: ':visible'
-				}
-			}
-			]
-		});
-
-		$.fn.dataTable.ext.classes.sPageButton = '';
-	});
-
-	$(function(){
-		$('#upload').change(function(){
-            var input = this;
-            var url = $(this).val();
-            var ext = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
-            if (input.files && input.files[0]&& (ext == "gif" || ext == "png" || ext == "jpeg" || ext == "jpg")) 
-            {
-                var reader = new FileReader();
-                
-                reader.onload = function (e) {
-                    $('#img').attr('src', e.target.result);
+            $.extend(true, $.fn.dataTable.Buttons.defaults.dom.button, { className: 'btn' })
+            $.extend(true, $.fn.dataTable.defaults, {
+                language: {
+                url: languages['{{ app()->getLocale() }}']
+                },
+                columnDefs: [{
+                    orderable: false,
+                    className: 'select-checkbox',
+                    targets: 0
+                }, {
+                    orderable: false,
+                    searchable: false,
+                    targets: -1
+                }],
+                select: {
+                style:    'multi+shift',
+                selector: 'td:first-child'
+                },
+                order: [],
+                scrollX: true,
+                pageLength: 100,
+                dom: 'lBfrtip<"actions">',
+                buttons: [
+                {
+                    extend: 'copy',
+                    className: 'btn-default',
+                    text: copyButtonTrans,
+                    exportOptions: {
+                    columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'csv',
+                    className: 'btn-default',
+                    text: csvButtonTrans,
+                    exportOptions: {
+                    columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excel',
+                    className: 'btn-default',
+                    text: excelButtonTrans,
+                    exportOptions: {
+                    columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    className: 'btn-default',
+                    text: pdfButtonTrans,
+                    exportOptions: {
+                    columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    className: 'btn-default',
+                    text: printButtonTrans,
+                    exportOptions: {
+                    columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'colvis',
+                    className: 'btn-default',
+                    text: colvisButtonTrans,
+                    exportOptions: {
+                    columns: ':visible'
+                    }
                 }
-                reader.readAsDataURL(input.files[0]);
-            }
-        });
-	});
+                ]
+            });
 
+            $.fn.dataTable.ext.classes.sPageButton = '';
+        });
+
+        $(function(){
+            $('#upload').change(function(){
+                var input = this;
+                var url = $(this).val();
+                var ext = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
+                if (input.files && input.files[0]&& (ext == "gif" || ext == "png" || ext == "jpeg" || ext == "jpg")) 
+                {
+                    var reader = new FileReader();
+                    
+                    reader.onload = function (e) {
+                        $('#img').attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            });
+        });
+
+    </script>
+    {{--  My scripts --}}
+    <script>
+        // Modal Ajax
+        $(document).on('click', '[data-toggle="modal-ajax"]', function(){
+            $('#loader').show();
+            var href = $(this).data('href');
+            var target = $(this).data('target');
+            var data = {};
+            if($(this).data('form') != null){
+                var form = $(this).data('form').split(';');
+                for (var i = 0; i < form.length; i++) {
+                    var form_data = form[i].split(':');
+                    for(var j = 1; j < form_data.length; j++){
+                        data[form_data[j-1]] = form_data[j];
+                    }
+                }
+            }
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                type: 'GET',
+                url: href,
+                data: data,
+                success: function(data){
+                    $('.modal-backdrop').remove()
+                    $('#modalAjax').html(data.modal_content)
+                    $('.select2').select2({
+                        theme: "bootstrap4",
+                        placeholder: "Select",
+                        allowClear: true
+                    });
+                    $('.datetimepicker').datetimepicker();
+                    $('#oldInput').find('input').each(function(){
+                        var name = $(this).attr('name').replace('old_', '');
+                        if(name != '_token'){
+                            var value = $(this).val();
+                            $('#modalAjax [name="'+name+'"]').parent('.form-group').find('.invalid-feedback').html('<strong class="text-danger">'+$(this).data('error-message')+'</strong>')
+                            $('#modalAjax').find('input[type="text"][name="'+name+'"]').val(value).addClass($(this).data('error'));
+                            $('#modalAjax').find('input[type="checkbox"][name="'+name+'"][value="'+value+'"]').prop('checked', true);
+                            $('#modalAjax').find('input[type="radio"][name="'+name+'"][value="'+value+'"]').prop('checked', true);
+                            $('#modalAjax').find('select[name="'+name+'"]').val(value).trigger('change').addClass($(this).data('error'));
+                        }
+                    })
+                    $(target).modal('show')
+                    $('#loader').hide();
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    ajax_error(xhr, ajaxOptions, thrownError)
+                    // removeLocationHash()
+                    $('#loader').hide();
+                }
+            })
+        })
+
+        $(document).on('click', '[data-dismiss="modal-ajax"]', function() {
+            // closeAllModals()
+            $('.modal').modal('hide')
+            $('.modal-backdrop').fadeOut(250, function() {
+                $('.modal-backdrop').remove()
+            })
+            $('body').removeClass('modal-open').css('padding-right', '0px');
+            $('#oldInput').html('');
+            $('#modalAjax').html('')
+            removeLocationHash()
+        })
+
+        function removeLocationHash(){
+            var noHashURL = window.location.href.replace(/#.*$/, '');
+            window.history.replaceState('', document.title, noHashURL)
+        }
+        function ajax_error(xhr, ajaxOptions, thrownError){
+            if(xhr.responseJSON.exception == "Spatie\\Permission\\Exceptions\\UnauthorizedException"){
+                ajax_permission_denied();
+            }else{
+                $('#ajaxOptions').html(ajaxOptions);
+                $('#thrownError').html(thrownError);
+                $('#xhr').html(xhr.responseJSON.message);
+                $('#modalAjaxError').modal('show');
+            }
+        }
     </script>
     @yield('scripts')
 </body>

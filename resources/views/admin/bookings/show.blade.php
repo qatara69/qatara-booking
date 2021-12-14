@@ -15,6 +15,20 @@
         <div class="row">
             <div class="col-md-6">
                 <legend>Booking Info</legend>
+                @if(Auth::user()->getIsAdminAttribute())
+                    <div class="form-group">
+                        <label>Added by:</label>
+                        {{ $booking->creator->first_name.' '.$booking->creator->last_name }}
+                        (@foreach($booking->creator->roles as $key => $roles){{ $roles->title.(!$loop->last ? ', ' : '') }}@endforeach)
+                    </div>
+                    @if($booking->booking_status != 'pending')
+                    <div class="form-group">
+                        <label>{{ ucfirst($booking->booking_status) }} by:</label>
+                        {{ $booking->editor->first_name.' '.$booking->editor->last_name }}
+                        (@foreach($booking->editor->roles as $key => $roles){{ $roles->title.(!$loop->last ? ', ' : '') }}@endforeach)
+                    </div>
+                    @endif
+                @endif
                 <div class="form-group">
                     <label>Booking Status:</label>
                     {!! $booking->getBookingStatus() !!}
@@ -41,6 +55,10 @@
                     {{ date('F d, Y  h:i A', strtotime($booking->booking_date_to)) }}
                 </div>
                 <div class="form-group">
+                    <label>Walk In: </label>
+                    {!! $booking->is_walk_in ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-times text-danger"></i>' !!}
+                </div>
+                <div class="form-group">
                     <label>Required Reservation Fee (30% of total amount):</label>
                     ₱ {{ number_format(($booking->amount * 0.3), 2) }}
                 </div>
@@ -50,7 +68,7 @@
                 </div>
                 <div class="form-group">
                     <label>Room:</label>
-                    {{ $booking->room->name }}
+                    <a href="{{ route('admin.rooms.show', $booking->room->id) }}">{{ $booking->room->name }}</a>
                 </div>
                 <div class="form-group">
                     <label>Name:</label>
@@ -102,34 +120,6 @@
                     <label>Balance:</label>
                     ₱ {{ number_format(($booking->amount-$booking->payments->sum('amount')), 2) }}
                 </div>
-                {{--  <div class="form-group">
-                    <a href="javascript:void(0)" data-toggle="modal-ajax" data-target="#bookingPayment" data-href="{{ route('payments.create', ['payment_method'=>'cash', 'booking_id'=>$booking->id]) }}" class="btn btn-primary">Add Payment</a>
-                </div>
-                <br>
-                <table class="table table-sm table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($booking->payments as $payment)
-                            <tr data-toggle="modal-ajax" data-target="#showPayment" @if($payment->payment_status == 'pending') data-href="{{ route('payments.edit', $payment->id) }}" @else data-href="{{ route('payments.show', $payment->id) }}" @endif>
-                                <td>
-                                    {!! $payment->getPaymentStatus() !!}
-                                </td>
-                                <td>{{ date('F d, Y h:i A', strtotime($payment->created_at)) }}</td>
-                                <td>₱ {{ number_format($payment->amount, 2) }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td class="text-danger text-center" colspan="3">*** EMPTY ***</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table> --}}
             </div>
         </div>
     </div>
@@ -148,6 +138,7 @@
         <a class="btn btn-danger" href="{{ route('admin.bookings.cancel', $booking->id) }}">Cancel Booking</a>
         @endif
         @if($booking->booking_status == 'checked in')
+        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#extendModal">Extend</button>
         <a class="btn btn-primary" href="{{ route('admin.bookings.checkout', $booking->id) }}">Check Out</a>
         @endif
     </div>
@@ -175,6 +166,50 @@
 <div id="modalAjax"></div>
 <div id="modalOpenData"></div>
 
+@if($booking->booking_status == 'checked in')
+<form action="{{ route('admin.bookings.extend', $booking->id) }}" method="POST">
+    @csrf
+    @method('PUT')
+    <div class="modal fade" id="extendModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Extend Booking</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="checkinDate" value="{{ date('Y-m-d', strtotime(Carbon\Carbon::parse($booking->booking_date_from)->subDays(1))) }}">
+                    <input type="hidden" id="roomAmount" value="{{ $booking->room->amount }}">
+                    <input type="hidden" id="amountPaid" value="{{ $booking->payments->sum('amount') }}">
+                    <div class="form-group">
+                        <label class="required" for="booking_date">Check out date</label>
+                        <input type="date" class="form-control" name="checkout_date" id="checkoutDate" min="{{ date('Y-m-d', strtotime(Carbon\Carbon::parse($booking->booking_date_from)->addDays(1))) }}" required onchange="showAmount()">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount:</label>
+                        <span id="totalAmount"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount Paid:</label>
+                        <span id="totalAmountPaid"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Balance:</label>
+                        <span id="totalAmountBalance"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    {{-- <a class="btn btn-danger" href="{{ route('admin.bookings.decline', $booking->id) }}">Decline Booking</a> --}}
+                    <button class="btn btn-success" type="submit"> Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+@endif
 @if($booking->booking_status == 'pending')
 <form action="{{ route('admin.bookings.decline', $booking->id) }}" method="POST">
     @csrf
@@ -204,7 +239,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal-ajax">Cancel</button>
                     {{-- <a class="btn btn-danger" href="{{ route('admin.bookings.decline', $booking->id) }}">Decline Booking</a> --}}
-                    <button class="btn btn-danger" type="submit"> Decline Booking</button>
+                    <button class="btn btn-success" type="submit"> Decline Booking</button>
                 </div>
             </div>
         </div>
@@ -213,82 +248,30 @@
 @endif
 @endsection
 @section('scripts')
-<script>
-    $(function(){
-        /* $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        }); */
-        // Modal Ajax
-        $(document).on('click', '[data-toggle="modal-ajax"]', function(){
-            $('#loader').show();
-            var href = $(this).data('href');
-            var target = $(this).data('target');
-            var data = {};
-            if($(this).data('form') != null){
-                var form = $(this).data('form').split(';');
-                for (var i = 0; i < form.length; i++) {
-                    var form_data = form[i].split(':');
-                    for(var j = 1; j < form_data.length; j++){
-                        data[form_data[j-1]] = form_data[j];
-                    }
-                }
-            }
-            $.ajax({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                type: 'GET',
-                url: href,
-                data: data,
-                success: function(data){
-                    $('.modal-backdrop').remove()
-                    $('#modalAjax').html(data.modal_content)
-                    $('.select2').select2({
-                        theme: "bootstrap4",
-                        placeholder: "Select",
-                        allowClear: true
-                    });
-                    $('.datetimepicker').datetimepicker();
-                    $('#oldInput').find('input').each(function(){
-                        var name = $(this).attr('name').replace('old_', '');
-                        if(name != '_token'){
-                            var value = $(this).val();
-                            $('#modalAjax [name="'+name+'"]').parent('.form-group').find('.invalid-feedback').html('<strong class="text-danger">'+$(this).data('error-message')+'</strong>')
-                            $('#modalAjax').find('input[type="text"][name="'+name+'"]').val(value).addClass($(this).data('error'));
-                            $('#modalAjax').find('input[type="checkbox"][name="'+name+'"][value="'+value+'"]').prop('checked', true);
-                            $('#modalAjax').find('input[type="radio"][name="'+name+'"][value="'+value+'"]').prop('checked', true);
-                            $('#modalAjax').find('select[name="'+name+'"]').val(value).trigger('change').addClass($(this).data('error'));
-                        }
-                    })
-                    $(target).modal('show')
-                    $('#loader').hide();
-                },
-                error: function(xhr, ajaxOptions, thrownError){
-                    ajax_error(xhr, ajaxOptions, thrownError)
-                    // removeLocationHash()
-                    $('#loader').hide();
-                }
-            })
-        })
-
-        $(document).on('click', '[data-dismiss="modal-ajax"]', function() {
-            // closeAllModals()
-            $('.modal').modal('hide')
-            $('.modal-backdrop').fadeOut(250, function() {
-                $('.modal-backdrop').remove()
-            })
-            $('body').removeClass('modal-open').css('padding-right', '0px');
-            $('#oldInput').html('');
-            $('#modalAjax').html('')
-            removeLocationHash()
-        })
-
-        function removeLocationHash(){
-            var noHashURL = window.location.href.replace(/#.*$/, '');
-            window.history.replaceState('', document.title, noHashURL)
+    <script>
+        function showAmount(){
+            var amount = $('#roomAmount').val()
+            var amountPaid = $('#amountPaid').val()
+            
+            var checkInDate = parseDate($('#checkinDate').val())
+            var checkOutDate = parseDate($('#checkoutDate').val())
+            var numDays = datediff(checkInDate, checkOutDate)
+            var totalAmount = parseFloat(amount * numDays).toFixed(2);
+            console.log('totalAmount: '+totalAmount)
+            console.log('amountPaid: '+amountPaid)
+            console.log(totalAmount - amountPaid)
+            $('#totalAmount').text('₱ '+ totalAmount)
+            $('#totalAmountPaid').text('₱ '+ parseFloat(amountPaid).toFixed(2))
+            $('#totalAmountBalance').text('₱ '+ parseFloat(totalAmount - amountPaid).toFixed(2))
         }
-    })
-</script>
+
+        function parseDate(str) {
+            var mdy = str.split('-');
+            return new Date(mdy[0], mdy[1], mdy[2]);
+        }
+
+        function datediff(checkInDate, checkOutDate) {
+            return Math.round((checkOutDate-checkInDate)/(1000*60*60*24));
+        }
+    </script>
 @endsection

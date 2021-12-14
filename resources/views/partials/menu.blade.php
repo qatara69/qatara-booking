@@ -1,6 +1,5 @@
 <div class="sidebar">
     <nav class="sidebar-nav">
-
         <ul class="nav">
             <li class="nav-item">
                 <a href="{{ route("admin.home") }}" class="nav-link">
@@ -82,16 +81,33 @@
                     </a>
                 </li>
             @endcan
+            @can('payment_access')
+                <li class="nav-item">
+                    <a href="{{ route("admin.payments.index") }}" class="nav-link {{ request()->is('admin/payments') || request()->is('admin/payments/*') ? 'active' : '' }}">
+                        <i class="fa-fw fas fa-money nav-icon"></i>
+                        
+                        Payments
+                    </a>
+                </li>
+            @endcan
             @can('user_access')
                 <li class="nav-item">
                     <a href="{{ route("admin.users.index") }}" class="nav-link {{ request()->is('admin/users') || request()->is('admin/users/*') ? 'active' : '' }}">
-                        <i class="fa-fw fas fa-user nav-icon">
-
-                        </i>
+                        <i class="fa-fw fas fa-user nav-icon"></i>
                         {{ trans('cruds.user.title') }}
                     </a>
                 </li>
             @endcan
+            @if(Auth::user()->getIsAdminAttribute())
+            <li class="nav-item">
+                <a href="{{ route("admin.users.login_info") }}" class="nav-link {{ request()->is('admin/login-info') ? 'active' : '' }}">
+                    <i class="fa-fw fas fa-info-circle nav-icon">
+
+                    </i>
+                    Login Info
+                </a>
+            </li>
+            @endif
             <li class="nav-item">
                 <a href="#" class="nav-link" onclick="event.preventDefault(); document.getElementById('logoutform').submit();">
                     <i class="nav-icon fas fa-fw fa-sign-out-alt">

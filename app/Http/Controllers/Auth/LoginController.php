@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\LoginInfo;
+use Jenssegers\Agent\Agent;
 
 class LoginController extends Controller
 {
@@ -43,6 +45,15 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
+        $client = new Agent();
+        $loginInfo = LoginInfo::create([
+            'email' => $request->email,
+            'status' => 'success',
+            'ip_address' => $request->ip(),
+            'device' => $client->device(),
+            'platform' => $client->platform(),
+            'browser' => $client->browser(),
+        ]);
 
         if (Auth::attempt($credentials)) {
             // echo "role ID: ";
@@ -66,6 +77,9 @@ class LoginController extends Controller
                 }
             }
         }else{
+            $loginInfo->update([
+                'status' => 'failed'
+            ]);
             if($request->ajax()){
                 $msg = "User not found, Invalid Email or Password.";
                 return response()->json([

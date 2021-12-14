@@ -47,6 +47,14 @@
                             {{ $room->room_type->name ?? '' }}
                         </td>
                     </tr>
+                    <tr>
+                        <th>
+                            Amount/night
+                        </th>
+                        <td>
+                            ₱ {{ number_format($room->amount, 2) ?? '0.00' }}
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <div class="form-group">

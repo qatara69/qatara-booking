@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Wildside\Userstamps\Userstamps;
 
 
 class Booking extends Model
 {
+    use Userstamps;
     
-
     public $table = 'bookings';
 
     /* protected $dates = [
@@ -20,6 +21,7 @@ class Booking extends Model
     ]; */
 
     protected $fillable = [
+        'is_walk_in',
         'type_of_identification',
         'proof_of_identity',
         'room_id',

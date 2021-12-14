@@ -43,6 +43,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Users
     Route::delete('users/destroy', 'UsersController@massDestroy')->name('users.massDestroy');
     Route::resource('users', 'UsersController');
+    Route::get('login-info', 'UsersController@loginInfo')->name('users.login_info');
 
     // Hotels
     Route::delete('hotels/destroy', 'HotelsController@massDestroy')->name('hotels.massDestroy');
@@ -59,18 +60,20 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     
 
     // Bookings
-    Route::delete('bookings/destroy', 'BookingsController@massDestroy')->name('bookings.massDestroy');
     Route::resource('bookings', 'BookingsController');
+    Route::delete('bookings/destroy', 'BookingsController@massDestroy')->name('bookings.massDestroy');
     Route::get('print-booking-report', 'BookingsController@printReport')->name('bookings.print_report');
     Route::get('bookings/confirm/{booking}', 'BookingsController@confirm')->name('bookings.confirm');
     Route::get('bookings/check-in/{booking}', 'BookingsController@checkIn')->name('bookings.check_in');
     Route::get('bookings/check-out/{booking}', 'BookingsController@checkOut')->name('bookings.checkout');
     Route::get('bookings/cancel/{booking}', 'BookingsController@cancel')->name('bookings.cancel');
     Route::post('bookings/decline/{booking}', 'BookingsController@decline')->name('bookings.decline');
+    Route::put('bookings/extend/{booking}', 'BookingsController@extend')->name('bookings.extend');
 
     // payments
     Route::resource('payments', 'PaymentsController');
     Route::delete('payments/destroy', 'PaymentsController@massDestroy')->name('payments.massDestroy');
+    Route::get('print-paypent-report', 'PaymentsController@printReport')->name('payments.print_report');
 
     // payments
     // Route::get('admin/payments/create', 'Admin\BookingsController@createPayment')->name('admin.payments.create');

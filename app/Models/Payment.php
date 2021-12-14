@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Wildside\Userstamps\Userstamps;
 
 class Payment extends Model
 {
-    
+    use Userstamps;
     
     protected $table = 'payments';
 
@@ -16,7 +16,9 @@ class Payment extends Model
         'booking_id',
         'payment_status',
         'mode_of_payment',
-        'amount'
+        'amount',
+        'created_at',
+        'updated_at',
     ];
 
     public function booking()

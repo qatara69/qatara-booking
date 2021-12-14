@@ -19,28 +19,19 @@
         }
     </style>
 </head>
-<body onload="window.print()">
+<body {{-- onload="window.print()" --}}>
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12 text-center">
-                <h4>Booking Report</h4>
+                <h4>Payment Report</h4>
                 <p>{{ date('F d, Y') }}</p>
             </div>
         </div>
         <div class="row">
             <div class="col-lg-12 filter-data">
                 <div class="form-group">
-                    <label>Booking Date: </label>
-                    {{ is_null($book_date) ? "*" : $book_date }}
-                </div>
-                <div class="form-group">
-                    <label>Booked By: </label>
-                    @if(!is_null(request()->get('booked_by')))
-                        @forelse (request()->get('booked_by') as $user)
-                            {{ App\Models\User::find($user)->name() }}@if(!$loop->last), @endif
-                        @empty
-                        @endforelse
-                    @endif
+                    <label>Payment Date: </label>
+                    {{ is_null($payment_date) ? "*" : date('F d, Y', strtotime(explode(' - ', $payment_date)[0])).' - '.date('F d, Y', strtotime(explode(' - ', $payment_date)[1])) }}
                 </div>
                 <div class="form-group">
                     <label>Clients: </label>
@@ -54,28 +45,8 @@
                     @endif
                 </div>
                 <div class="form-group">
-                    <label>Room Type:</label>
-                    {{ App\Models\RoomType::find($room_type)->name ?? "*" }}
-                </div>
-                <div class="form-group">
-                    <label>Room:</label>
-                    {{ App\Models\Room::find($room)->name ?? "*" }}
-                </div>
-                <div class="form-group">
                     <label>Walk In: </label>
                     {!! is_null(request()->get('walk_in')) ? '✕' : '✓' !!}
-                </div>
-                <div class="form-group">
-                    <label>Booking Status: </label>
-                    @if(!is_null($booking_status))
-                        @forelse ($booking_status as $booking_status)
-                            {{ $booking_status }}@if(!$loop->last), @endif
-                        @empty
-                        *
-                        @endforelse
-                    @else
-                    *
-                    @endif
                 </div>
                 <div class="form-group">
                     <label>Payment Status: </label>
@@ -98,58 +69,48 @@
                     <thead>
                         <tr>
                             <td></td>
-                            <th>Booking Status</th>
-                            <th>Payment Status</th>
                             <th>Client Name</th>
-                            <th>Room</th>
-                            <th>Amount Paid</th>
-                            <th>Balance</th>
+                            <th>Payment Status</th>
+                            <th>Payment Date</th>
                             <th>Amount</th>
-                            <th>Booking Date From</th>
-                            <th>Booking Date To</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($bookings as $index => $booking)
+                        @forelse ($payments as $index => $payment)
                         <tr>
                             <td>
                                 {{ $index+1 }}
                             </td>
                             <td>
-                                {!! $booking->getBookingStatus() !!}
+                                {{ $payment->booking->client->name() }}
                             </td>
                             <td>
-                                {!! $booking->getPaymentStatus() !!}
+                                {!! $payment->getPaymentStatus() !!}
                             </td>
                             <td>
-                                {{ $booking->client->name() }}
+                                {{ date('F d, Y h:i A', strtotime($payment->created_at)) }}
                             </td>
                             <td>
-                                {{ $booking->room->name }}
-                            </td>
-                            <td>
-                                {{ $booking->payments->sum('amount') }}
-                            </td>
-                            <td>
-                                {{ $booking->amount - $booking->payments->sum('amount') }}
-                            </td>
-                            <td>
-                                {{ $booking->amount }}
-                            </td>
-                            <td>
-                                {{ date('Y-m-d', strtotime($booking->booking_date_from)) }}
-                            </td>
-                            <td>
-                                {{ date('Y-m-d', strtotime($booking->booking_date_to)) }}
+                                ₱ {{ number_format($payment->amount, 2) }}
                             </td>
                         </tr>
                         @empty
+                        <tr>
+                            <td class="text-center text-danger" colspan="5">*** EMPTY ***</td>
+                        </tr>
                         @endforelse
+                        <tr>
+                            <td class="text-right" colspan="4">
+                                Total
+                            </td>
+                            <th>
+                                ₱ {{ number_format($payments->sum('amount'), 2) }}
+                            </th>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        
     </div>
 </body>
 </html>

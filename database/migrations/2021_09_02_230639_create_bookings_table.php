@@ -10,6 +10,7 @@ class CreateBookingsTable extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->boolean('is_walk_in')->nullable()->default(0);
             $table->string('type_of_identification')->nullable();
             $table->string('proof_of_identity')->nullable();
             $table->unsignedBigInteger('room_id');
@@ -30,6 +31,8 @@ class CreateBookingsTable extends Migration
             $table->string('reason_of_cancellation')->nullable();
             $table->string('other_reasons')->nullable();
             $table->string('decline_reason')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
             
         });

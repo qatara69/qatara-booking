@@ -98,17 +98,26 @@ class BookingsController extends Controller
 
             return $table->make(true);
         }
+
         $clients = User::join('role_user', 'users.id', '=', 'role_user.user_id')
                         ->select('*')
                         ->where('role_id', 3)->get();
+        $users = User::join('role_user', 'users.id', '=', 'role_user.user_id')
+                        ->select('*')
+                        ->whereIn('role_id',[1,2] )->get();
         $data = [
             'room_types' => RoomType::get(),
-            'clients' => $clients
+            'clients' => $clients,
+            'users' => $users,
         ];
 
         if($request->get('filter') == 1){
             $bookings = Booking::select('*');
 
+            if(!is_null($request->get('booked_by'))){
+                $bookings->wherein('created_by', $request->get('booked_by'));
+            }
+            
             if(!is_null($request->get('clients'))){
                 $bookings->wherein('user_id', $request->get('clients'));
             }
@@ -129,6 +138,10 @@ class BookingsController extends Controller
                 $bookings->wherein('room_id', $rooms);
             }
 
+            if(!is_null($request->get('walk_in'))){
+                $bookings->where('is_walk_in', true);
+            }
+
             if(!is_null($request->get('room'))){
                 $bookings->where('room_id', $request->get('room'));
             }
@@ -144,7 +157,8 @@ class BookingsController extends Controller
             $data = [
                 'bookings' => $bookings->orderBy('created_at', 'DESC')->get(),
                 'room_types' => RoomType::get(),
-                'clients' => $clients
+                'clients' => $clients,
+                'users' => $users,
             ];
         }
         return view('admin.bookings.index', $data);
@@ -194,6 +208,7 @@ class BookingsController extends Controller
         }
 
         $booking = Booking::create([
+            'is_walk_in' => true, 
             'payment_status' => 'unpaid', 
             'booking_status' => 'pending',
             'room_id' => $request->get('room'),
@@ -341,9 +356,47 @@ class BookingsController extends Controller
         return redirect()->route('admin.bookings.show', $booking->id);
     }
 
+    public function extend(Request $request, Booking $booking)
+    {
+        $request->validate([
+            'checkout_date' => 'required',
+        ]);
+
+        $amount = $booking->room->amount;
+
+        $book_from = Carbon::parse($booking->booking_date_from)->subDays(1);
+        $book_to = Carbon::parse($request->get('checkout_date'));
+        $days = $book_from->diffInDays($book_to);
+
+        $amount = $amount * $days;
+
+        $payment_status = 'paid';
+        if($booking->payments->sum('amount') < $amount){
+            $payment_status = 'partial';
+        }
+
+        /* echo "days => " . $days;
+        echo "<br>";
+        echo "amount => " . $amount;
+        echo "<br>";
+        echo "payment_status => " . $payment_status; */
+
+        $booking->update([
+            'payment_status' => $payment_status,
+            'amount' => $amount,
+            'booking_date_to' => $book_to,
+        ]);
+
+        return redirect()->route('admin.bookings.show', $booking->id);
+    }
+
     public function printReport(Request $request)
     {
         $bookings = Booking::select('*');
+
+        if(!is_null($request->get('booked_by'))){
+            $bookings->wherein('created_by', $request->get('booked_by'));
+        }
 
         if(!is_null($request->get('clients'))){
             $bookings->wherein('user_id', $request->get('clients'));
@@ -367,6 +420,10 @@ class BookingsController extends Controller
 
         if(!is_null($request->get('room'))){
             $bookings->where('room_id', $request->get('room'));
+        }
+
+        if(!is_null($request->get('walk_in'))){
+            $bookings->where('is_walk_in', true);
         }
 
         if(!is_null($request->get('booking_status'))){

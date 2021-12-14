@@ -106,7 +106,7 @@ class RoomsController extends Controller
             ]);
             $file = $request->file('image');
             $fileName = $request->get('name') . '_' . date('m-d-Y H.i.s') . '.' . $file->getClientOriginalExtension();
-            Storage::disk('upload')->putFileAs('images/user', $request->file('image'), $fileName);
+            Storage::disk('upload')->putFileAs('images/rooms', $request->file('image'), $fileName);
             $room->update([
                 'image' => $fileName
             ]);

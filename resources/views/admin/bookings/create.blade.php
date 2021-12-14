@@ -13,7 +13,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label class="required" for="booking_date">Booking Date (Check in/Check out date and time)</label>
+                        <label class="required" for="booking_date">Booking Date (Check in/Check out date)</label>
                         <input type="text" class="form-control" name="book_date" id="bookDate">
                         @if($errors->has('book_date'))
                             <div class="invalid-feedback">
@@ -87,7 +87,7 @@
         </div>
         <div class="card-footer">
             <div class="form-group">
-                <button class="btn btn-danger" type="submit">
+                <button class="btn btn-success" type="submit">
                     {{ trans('global.save') }}
                 </button>
             </div>

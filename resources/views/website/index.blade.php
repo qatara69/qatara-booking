@@ -83,14 +83,14 @@
     <div class="container">
             <div class="row justify-content-center mb-5 pb-3">
       <div class="col-md-7 heading-section text-center ftco-animate">
-        <h2 class="mb-4">Our Rooms</h2>
+        <h2 class="mb-4">Featured Rooms</h2>
       </div>
     </div>    		
         <div class="row">
             @foreach ($featuredRooms as $room)
             <div class="col-sm col-md-6 col-lg-4 ftco-animate">
                 <div class="room">
-                    <a href="javascript:void(0)" class="img d-flex justify-content-center align-items-center" style="background-image: url({{ asset('images/rooms/'.$room->image) }});">
+                    <a href="javascript:void(0)" class="img d-flex justify-content-center align-items-center" style="background-image: url('{{ asset('images/rooms/'.$room->image) }}');">
                         {{-- <div class="icon d-flex justify-content-center align-items-center">
                             <span class="icon-search2"></span>
                         </div> --}}

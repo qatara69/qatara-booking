@@ -8,28 +8,32 @@
     </style>
 @endsection
 @section('content')
-@can('booking_create')
-    <div style="margin-bottom: 10px;" class="row">
-        <div class="col-lg-12">
-            <a class="btn btn-success" href="{{ route("admin.bookings.create") }}">
-                {{ trans('global.add') }} {{ trans('cruds.booking.title_singular') }}
-            </a>
-            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#filterOptions">
-                Filter
-            </button>
-            <a class="btn btn-primary" href="{{ route("admin.bookings.print_report", [
-                'book_date' => request()->get('book_date'),
-                'clients' => request()->get('clients'),
-                'room_type' => request()->get('room_type'),
-                'room' => request()->get('room'),
-                'booking_status' => request()->get('booking_status'),
-                'payment_status' => request()->get('payment_status')
-            ]) }}" target="_blank">
-                Print Report
-            </a>
-        </div>
+<div style="margin-bottom: 10px;" class="row">
+    <div class="col-lg-12">
+        @can('booking_create')
+        <a class="btn btn-success" href="{{ route("admin.bookings.create") }}">
+            {{ trans('global.add') }} {{ trans('cruds.booking.title_singular') }}
+        </a>
+        @endcan
+        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#filterOptions">
+            Filter
+        </button>
+        @if(Auth::user()->getIsAdminAttribute())
+        <a class="btn btn-primary" href="{{ route("admin.bookings.print_report", [
+            'booked_by' => request()->get('booked_by'),
+            'walk_in' => request()->get('walk_in'),
+            'book_date' => request()->get('book_date'),
+            'clients' => request()->get('clients'),
+            'room_type' => request()->get('room_type'),
+            'room' => request()->get('room'),
+            'booking_status' => request()->get('booking_status'),
+            'payment_status' => request()->get('payment_status')
+        ]) }}" target="_blank">
+            Print Report
+        </a>
+        @endif
     </div>
-@endcan
+</div>
 @if(request()->get('filter') == 1)
 <div class="card">
     <div class="card-header">
@@ -39,6 +43,15 @@
         <div class="form-group">
             <label>Booking Date: </label>
             {{ request()->get('book_date') }}
+        </div>
+        <div class="form-group">
+            <label>Booked By: </label>
+            @if(!is_null(request()->get('booked_by')))
+                @forelse (request()->get('booked_by') as $user)
+                    {{ App\Models\User::find($user)->name() }}@if(!$loop->last), @endif
+                @empty
+                @endforelse
+            @endif
         </div>
         <div class="form-group">
             <label>Clients: </label>
@@ -56,6 +69,10 @@
         <div class="form-group">
             <label>Room:</label>
             {{ App\Models\Room::find(request()->get('room'))->name ?? "" }}
+        </div>
+        <div class="form-group">
+            <label>Walk In: </label>
+            {!! is_null(request()->get('walk_in')) ? '<i class="fa fa-times text-danger"></i>' : '<i class="fa fa-check text-success"></i>' !!}
         </div>
         <div class="form-group">
             <label>Booking Status: </label>
@@ -171,6 +188,17 @@
                                 <input type="text" class="form-control" name="book_date" id="bookDate" value="{{ request()->get('book_date') }}" autocomplete="off">
                             </div>
                             <div class="form-group">
+                                <label for="#booked_by">Booked by</label>
+                                <select name="booked_by[]" id="booked_by" class="form-control select2" multiple>
+                                    <option></option>
+                                    @foreach ($users as $user)
+                                        <option value="{{ $user->id }}" {{ !is_null(request()->get('booked_by')) ? (in_array($user->id ,request()->get('booked_by')) ? 'selected' : '') : '' }}>
+                                            {{ $user->name() }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label for="#clients">Client</label>
                                 <select name="clients[]" id="clients" class="form-control select2" multiple>
                                     <option></option>
@@ -200,6 +228,12 @@
                                         <option value="{{ $room->id }}" {{ old('room_id') == $id ? 'selected' : '' }}>{{ $room->name }}</option>
                                     @endforeach --}}
                                 </select>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="walkIn" name="walk_in" value="1" {{ !is_null(request()->get('walk_in')) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="walkIn">Walk In</label>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label>Booking Status</label>

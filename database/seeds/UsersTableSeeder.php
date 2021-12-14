@@ -15,7 +15,7 @@ class UsersTableSeeder extends Seeder
             'last_name'      => 'Uchiha',
             'contact_number' => '09123456789',
             'address'        => 'Hidden Leaf Village',
-            'email'          => 'qatarafamilyresort.69@gmail.com',
+            'email'          => 'qatarafamilyresort.2404@gmail.com',
             'email_verified_at' => Carbon::now(),
             'password'       => bcrypt('password'),
             'remember_token' => null,

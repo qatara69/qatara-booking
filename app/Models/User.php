@@ -6,13 +6,17 @@ use Carbon\Carbon;
 use Hash;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Wildside\Userstamps\Userstamps;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
+    // $model->creator; // the user who created the model
+    // $model->editor; // the user who last updated the model
+    
     use Notifiable;
+    use Userstamps;
 
     public $table = 'users';
 

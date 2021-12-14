@@ -19,6 +19,7 @@ class HomeController
                     'confirmed_bookings' => Booking::where('booking_status', 'confirmed')->count(),
                     'checked_in_bookings' => Booking::where('booking_status', 'checked in')->count(),
                     'unpaid_bookings' => Booking::where('payment_status', 'unpaid')->count(),
+                    'bookings' => Booking::get(),
                 ];
                 return view('home', $data);
             }elseif(Auth::user()->roles()->where('id', 2)->exists()){
@@ -27,6 +28,7 @@ class HomeController
                     'confirmed_bookings' => Booking::where('booking_status', 'confirmed')->count(),
                     'checked_in_bookings' => Booking::where('booking_status', 'checked in')->count(),
                     'unpaid_bookings' => Booking::where('payment_status', 'unpaid')->count(),
+                    'bookings' => Booking::get(),
                 ];
                 return view('home', $data);
             }else{

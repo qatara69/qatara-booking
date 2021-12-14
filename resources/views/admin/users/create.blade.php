@@ -32,7 +32,10 @@
             <div class="form-group row">
                 <div class="col-md-6">
                     <label class="required" for="contact_number">Contact #</label>
-                    <input class="form-control {{ $errors->has('contact_number') ? 'is-invalid' : '' }}" type="number" name="contact_number" id="contact_number" value="{{ old('contact_number', '') }}" required>
+                    <input class="form-control {{ $errors->has('contact_number') ? 'is-invalid' : '' }}" type="tel" pattern="^(09|\+639)\d{9}$"  name="contact_number" id="contact_number" value="{{ old('contact_number', '') }}" required>
+                    <span class="form-info">
+                    Format   (09xxxxxxxxx or +639xxxxxxxxx)
+                    </span>
                     @if($errors->has('contact_number'))
                         <div class="invalid-feedback">
                             {{ $errors->first('contact_number') }}
@@ -89,7 +92,7 @@
                 <span class="help-block">{{ trans('cruds.user.fields.roles_helper') }}</span>
             </div>
             <div class="form-group">
-                <button class="btn btn-danger" type="submit">
+                <button class="btn btn-success" type="submit">
                     {{ trans('global.save') }}
                 </button>
             </div>

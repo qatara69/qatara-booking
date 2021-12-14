@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MassDestroyPaymentRequest;
 use App\Models\Payment;
 use App\Models\Booking;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Gate;
@@ -21,8 +22,15 @@ class PaymentsController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Payment::with(['booking'])->select(sprintf('%s.*', (new Payment)->table));
-            $table = Datatables::of($query);
+            // $payments = Payment::select('*');
+            /* $payments = Payment::with(['booking', 'booking.client'=>function($q){
+                $q->select([
+                    'id',
+                    DB::raw("CONCAT(first_name,' ',last_name) AS clientname")
+                ]);
+            }])->get(); */
+            $paymentQuery = Payment::with(['booking', 'booking.client'])->get();
+            $table = Datatables::of($paymentQuery);
 
             $table->addColumn('placeholder', '&nbsp;');
             $table->addColumn('actions', '&nbsp;');
@@ -46,16 +54,82 @@ class PaymentsController extends Controller
                 return $row->id ? $row->id : "";
             });
 
+            /* $table->addColumn('client_name', function ($row) {
+                return $row->booking->client ? $row->booking->client->clientname : '';
+            });*/
+            $table->addColumn('client_first_name', function ($row) {
+                return $row->booking->client ? $row->booking->client->first_name : '';
+            });
+
+            $table->addColumn('client_last_name', function ($row) {
+                return $row->booking->client ? $row->booking->client->last_name : '';
+            });
+
+            $table->addColumn('payment_status', function ($row) {
+                return $row->getPaymentStatus() ? $row->getPaymentStatus() : "";
+            });
+
             $table->addColumn('amount', function ($row) {
                 return $row->amount ? "₱".$row->amount : '';
             });
 
-            $table->rawColumns(['actions', 'placeholder', 'booking', 'image']);
+            $table->addColumn('payment_date', function ($row) {
+                return $row->created_at ? date('Y-d-m H:i', strtotime($row->created_at)) : '';
+            });
+
+            $table->rawColumns(['actions', 'placeholder', 'payment_status', 'amount']);
 
             return $table->make(true);
         }
 
-        return view('admin.payments.index');
+        $clients = User::join('role_user', 'users.id', '=', 'role_user.user_id')
+                    ->select('*')
+                    ->where('role_id', 3)->get();
+
+        $data = [
+            'clients' => $clients,
+        ];
+
+        if(request()->get('filter') == 1){
+            $payments = Payment::select('*')->join('bookings', 'bookings.id', '=', 'payments.booking_id')->select(
+                'payments.*',
+                'bookings.id',
+                'bookings.user_id',
+                'bookings.room_id',
+                
+            );
+
+            if(!is_null($request->get('clients'))){
+                $payments->wherein('bookings.user_id', $request->get('clients'));
+            }
+
+            if(!is_null($request->get('walk_in'))){
+                $payments->where('bookings.is_walk_in', true);
+            }
+
+            if(!is_null($request->get('payment_date'))){
+                $payment_date = explode(' - ',$request->get('payment_date'));
+                $payment_from = date('Y-m-d', strtotime($payment_date[0]));
+                $payment_to = date('Y-m-d', strtotime($payment_date[1]));
+                $payments->whereDate('payments.updated_at', '<=', $payment_to.' 23:59:59')->where(function($query){
+                    $payment_date = explode(' - ', request()->get('payment_date'));
+                    $payment_from = date('Y-m-d', strtotime($payment_date[0]));
+                    $query->whereDate('payments.created_at', '>=', $payment_from.' 00:00:00');
+                });
+            }
+
+            if(!is_null(request()->get('payment_status'))){
+                $payments->whereIn('payments.payment_status', request()->get('payment_status'));
+            }
+
+            $data = [
+                'clients' => $clients,
+                'payments' => $payments->get()
+            ];
+
+        }
+
+        return view('admin.payments.index', $data);
     }
 
     /**
@@ -72,7 +146,7 @@ class PaymentsController extends Controller
                 // 'pay_with_cash' => request()->get('pay_with_cash')
             ];
             return response()->json([
-                'modal_content' => view('admin.payments.create', $data)->render()
+                'modal_content' => view('admin.payments.create_ajax', $data)->render()
             ]);
         }
     }
@@ -151,6 +225,11 @@ class PaymentsController extends Controller
             return response()->json([
                 'modal_content' => view('website.payments.show', $data)->render()
             ]);
+        }else{
+            $data = [
+                'payment' => $payment,
+            ];
+            return view('admin.payments.show', $data);
         }
     }
 
@@ -251,5 +330,48 @@ class PaymentsController extends Controller
         Payment::whereIn('id', request('ids'))->delete();
 
         return response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    public function printReport(Request $request)
+    {
+        $payments = Payment::select('*')->join('bookings', 'bookings.id', '=', 'payments.booking_id')->select(
+            'payments.*',
+            'bookings.id',
+            'bookings.user_id',
+            'bookings.room_id',
+            
+        );
+
+        if(!is_null($request->get('clients'))){
+            $payments->wherein('bookings.user_id', $request->get('clients'));
+        }
+
+        if(!is_null($request->get('walk_in'))){
+            $payments->where('bookings.is_walk_in', true);
+        }
+
+        if(!is_null($request->get('payment_date'))){
+            $payment_date = explode(' - ',$request->get('payment_date'));
+            $payment_from = date('Y-m-d', strtotime($payment_date[0]));
+            $payment_to = date('Y-m-d', strtotime($payment_date[1]));
+            $payments->whereDate('payments.updated_at', '<=', $payment_to.' 23:59:59')->where(function($query){
+                $payment_date = explode(' - ', request()->get('payment_date'));
+                $payment_from = date('Y-m-d', strtotime($payment_date[0]));
+                $query->whereDate('payments.created_at', '>=', $payment_from.' 00:00:00');
+            });
+        }
+
+        if(!is_null(request()->get('payment_status'))){
+            $payments->whereIn('payments.payment_status', request()->get('payment_status'));
+        }
+
+        $data = [
+            'payments' => $payments->get(),
+            'payment_date' => $request->get('payment_date'),
+            'clients' => $request->get('clients'),
+            'payment_status' => $request->get('payment_status'),
+        ];
+
+        return view('admin.payments.report', $data);
     }
 }

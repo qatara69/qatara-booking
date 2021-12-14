@@ -14,10 +14,12 @@
         "fideloper/proxy": "^4.0",
         "guzzlehttp/guzzle": "7.*",
         "intervention/image": "^2.7",
+        "jenssegers/agent": "^2.6",
         "laravel/framework": "^6.2",
         "laravel/telescope": "3.0",
         "laravel/tinker": "^1.0",
         "wildbit/swiftmailer-postmark": "^3.3",
+        "wildside/userstamps": "^2.1",
         "yajra/laravel-datatables-oracle": "^9.7"
     },
     "require-dev": {
