@@ -79,13 +79,118 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal-ajax">Cancel</button>
-                    <button class="btn btn-default text-success" type="submit"><i class="fas fa-save"></i> Save</button>
+                    <button class="btn btn-default text-success" type="button" data-toggle="modal" data-target="#termsAndCondition"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- Terms and condition --}}
+    <div class="modal fade" id="termsAndCondition" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-md modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Terms and Condition</h5>
+                    <button type="button" class="close" data-dismiss="modal" data-target="#termsAndCondition" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <ol>
+                                <li>
+                                    The resort is only authorized to accommodate properly registered guests. For this purpose, guests are to present their valid national ID card or passport, and any other valid proof of identity to the front desk employee.
+                                </li>
+                                <li>
+                                    Settlement of bills : Bills must be settled upon arrival by payment in cash, cheques are not accepted.
+                                </li>
+                                <li>
+                                    Guests are to use their rooms for the agreed period. If the guest breaks their stay, no refund will be made. If the period of accommodation is not stipulated in advance, guests are to check out by agreed period and they are obliged to have the room vacated by this time.
+                                </li>
+                                <li>
+                                    Please be advised to keep valuables in your personal rooms. Keep doors locked closed when not inside or when sleeping. The resort will not in any whatsoever, be responsible for the loss of guests belongings or any other property.
+                                </li>
+                                <li>
+                                    On the basis of advanced booking the resort is to charge the guest a Reservation Fee : 30% of the total amount of bill to be deposited via gcash or personal appearance in the resort.
+                                    <br>
+                                    Cancellation Policy:
+                                    <ul>
+                                        <li>
+                                            Full refund reservation fee : 15 working days prior to the scheduled date
+                                        </li>
+                                        <li>
+                                            50% refund reservation fee : less than 7-15 working days
+                                        </li>
+                                        <li>
+                                            Forfeiture of deposit : less than 7 working days prior to arrival date or any fortuitous events.
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    Rebooking Policy : Rebooking must be done 15 working days prior to the date of arrival otherwise rebooking may not be permitted. Guests can only rebooked once.
+                                </li>
+                                <li>
+                                    Early check-in/Late check-out privileges are subject to availability. For Late arrival, the guest must inform the resort personnel at least 2 hours in advance through chat, text or call. Failure to do so, rooms will be released and reservation fee will be forfeited. For NO SHOW : there will be no refund.
+                                </li>
+                                <li>
+                                    Keys must be deposited/returned at the reception desk whenever guests leave the premises and at the time of check out. We charge 1,000 for any lost keys.
+                                </li>
+                                <li>
+                                    Management Rights: The management reserves for itself the absolute right of admission to any person in the resort premises and to request any guest to vacate his or her room at any moment without previous notice and without assigning any reasons whatsoever the guest shall be bound to vacate when requested to do so. This will only happen if the person(s) occupying the rooms are disturbing the place or/and the safety of the  resort, personnel or other guests.
+                                </li>
+                                <li>
+                                    Guests may not move furnishings or interfere with the electrical network or any other installations in the rooms or on the premises of the resort without the  consent of the management. If any malfunction is discovered during your stay please report this to any personnel on duty.
+                                </li>
+                                <li>
+                                    If the guest becomes ill or injured, the resort can help with the provision of medical assistance or, as the case may be, to arrange for the guest to be taken to hospital, all at the guest expense.
+                                </li>
+                                <li>
+                                    Upon departing, guests are obliged to turn off all water faucets, lights in the rooms and its facilities as well as the air-con units and to shut the door as they leave. Keep the door and windows closed when the air-con is working.
+                                    No Smoking allowed for the safety reasons.                                    
+                                </li>
+                                <li>
+                                    No Littering Policy: All guests are required to Clean As They Go by disposing garbage properly, clean the dishes and maintain the cleanliness of the whole premises at all times.
+                                </li>
+                                <li>
+                                    No Vandalism and Horse Play. Guests are obliged to pay for any loss or damage of the resort property caused by themselves, friends or any persons whom they are responsible.
+                                </li>
+                                <li>
+                                    No Pets Allowed.
+                                </li>
+                                <li>
+                                    Minors under 18 years old, male or female, are not allowed to stay at this Resort without being accompanied by their parents or guardians.
+                                </li>
+                                <li>
+                                    Guests are obliged to observe the provisions of these terms and conditions. In the event that a Guest is in breach of these rules, the Resort has the right to repudiate the agreement on the provision of accommodation services before the agreed period has elapsed.
+                                </li>
+                            </ol>
+                            <hr>
+                            <div class="form-group">
+                                <input type="checkbox" id="agree">
+                                <label for="agree">Agree on Terms and Condition</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" data-target="#termsAndCondition">Cancel</button>
+                    <button class="btn btn-default text-success" type="submit" id="submitBtn" disabled><i class="fas fa-save"></i> Submit</button>
                 </div>
             </div>
         </div>
     </div>
 </form>
 <script>
+    $(function(){
+        $('#agree').change(function(){
+            if($(this).is(':checked')){
+                $('#submitBtn').prop('disabled', false)
+            }else{
+                $('#submitBtn').prop('disabled', true)
+            }
+        })
+    })
+
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

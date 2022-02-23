@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ asset('website/plugins/fullcalendar-bootstrap/main.min.css') }}">
     {{-- <link rel="stylesheet" href="{{ asset('website/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}" /> --}}
     <link rel="stylesheet" href="{{ asset('website/plugins/daterangepicker/daterangepicker.css') }}">
+    <link rel="stylesheet" href="{{ asset('website/plugins/chart.js/Chart.min.css') }}">
     <style type="text/css">
         /* html, body {
             overflow: hidden;
@@ -120,6 +121,22 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
+                    Bookings Chart
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            {!! $bookingsChart->container() !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
                     Bookings
                 </div>
                 <div class="card-body">
@@ -142,6 +159,8 @@
     <script src="{{ asset('website/plugins/fullcalendar-timegrid/main.min.js') }}"></script>
     <script src="{{ asset('website/plugins/fullcalendar-interaction/main.min.js') }}"></script>
     <script src="{{ asset('website/plugins/fullcalendar-bootstrap/main.min.js') }}"></script>
+    <script src="{{ asset('website/plugins/chart.js/Chart.bundle.min.js') }}"></script>
+    {!! $bookingsChart->script() !!}
     <script>
         $(function () {
             /* $(document).on('click', '[data-dismiss="modal-ajax"]', function() {

@@ -21,7 +21,7 @@
                     <tr>
                         <th>Status</th>
                         <th>Date</th>
-                        <th>Username</th>
+                        <th>Email</th>
                         <th>IP Address</th>
                         <th>Device</th>
                         <th>Platform</th>
