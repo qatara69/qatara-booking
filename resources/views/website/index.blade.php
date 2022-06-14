@@ -2,6 +2,34 @@
 @section('content')
 
 <section class="home-slider owl-carousel">
+    <div class="slider-item" style="background-image:url({{ asset('images/banner/banner-5.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container">
+        <div class="row no-gutters slider-text align-items-center justify-content-center">
+        <div class="col-md-12 ftco-animate text-center">
+            <div class="text mb-5 pb-3">
+                <h1 class="mb-3">Qatara Family Resort</h1>
+                <h2>Hotels &amp; Resorts</h2>
+            </div>
+        </div>
+        </div>
+        </div>
+    </div>
+
+    <div class="slider-item" style="background-image:url({{ asset('images/banner/banner-6.jpg') }});">
+        <div class="overlay"></div>
+        <div class="container">
+        <div class="row no-gutters slider-text align-items-center justify-content-center">
+        <div class="col-md-12 ftco-animate text-center">
+            <div class="text mb-5 pb-3">
+                <h1 class="mb-3">Qatara Family Resort</h1>
+                <h2>Hotels &amp; Resorts</h2>
+            </div>
+        </div>
+        </div>
+        </div>
+    </div>
+
     <div class="slider-item" style="background-image:url({{ asset('images/banner/banner-1.jpg') }});">
         <div class="overlay"></div>
         <div class="container">
@@ -23,7 +51,7 @@
         <div class="col-md-12 ftco-animate text-center">
             <div class="text mb-5 pb-3">
                 <h1 class="mb-3">Pearl of Qatara Alaminos</h1>
-                <h2>Join With Us</h2>
+                <h2>Hotels &amp; Resorts</h2>
             </div>
         </div>
         </div>
@@ -81,11 +109,11 @@
 @if($featuredRooms->count() > 0)
 <section class="ftco-section bg-light">
     <div class="container">
-            <div class="row justify-content-center mb-5 pb-3">
-      <div class="col-md-7 heading-section text-center ftco-animate">
-        <h2 class="mb-4">Featured Rooms</h2>
-      </div>
-    </div>    		
+        <div class="row justify-content-center mb-5 pb-3">
+            <div class="col-md-7 heading-section text-center ftco-animate">
+                <h2 class="mb-4">Featured Rooms</h2>
+            </div>
+        </div>    		
         <div class="row">
             @foreach ($featuredRooms as $room)
             <div class="col-sm col-md-6 col-lg-4 ftco-animate">

@@ -48,7 +48,7 @@
     </style>
 @endsection
 @section('content')
-<div class="hero-wrap" style="background-image: url('{{ asset('website/images/bg_1.jpg') }}');">
+<div class="hero-wrap" style="background-image: url('{{ asset('images/banner/qatara-booking-banner.jpg') }}');">
     <div class="overlay"></div>
     <div class="container">
         <div class="row no-gutters slider-text d-flex align-itemd-end justify-content-center">
